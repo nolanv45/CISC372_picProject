@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include "image.h"
@@ -56,16 +57,20 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 typedef struct {
     Image* srcImage;
     Image* destImage;
-    Matrix algorithm;
+    Matrix* algorithm;
     int startRow;
-    int endRow
+    int endRow;
 } ThreadArgs;
 
 
 // the thread function for convolute. picked convolute because of all the nested loops
 void* thread_convolute(void* arg){
     ThreadArgs* args = (ThreadArgs*)arg;
-    convolute(args->srcImage, args->destImage, args->algorithm, args->startRow, args->endRow);
+    unsigned long threadId = (unsigned long)pthread_self();
+    int firstRow = args->startRow;
+    int lastRow = args->endRow;
+    printf("Thread %lu processing rows (%d, %d)\n", threadId, firstRow, lastRow - 1);
+    convolute(args->srcImage, args->destImage, *args->algorithm, args->startRow, args->endRow);
     return NULL;
 }
 
@@ -112,6 +117,11 @@ enum KernelTypes GetKernelType(char* type){
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
+    // I added user input to decide how many threads before the timer starts.
+    int threadCount;
+    printf("Enter the number of threads to use: ");
+    scanf("%d", &threadCount);
+
     long t1,t2;
     t1=time(NULL);
 
@@ -134,7 +144,7 @@ int main(int argc,char** argv){
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
     // below is my added code to create threads for convolute
-    int threadCount = 4; // you can adjust this based on your system
+    
     pthread_t threads[threadCount];
     ThreadArgs args[threadCount];
 
@@ -142,7 +152,7 @@ int main(int argc,char** argv){
     for (int i = 0; i < threadCount; i++) {
         args[i].srcImage = &srcImage;
         args[i].destImage = &destImage;
-        args[i].algorithm = algorithms[type];
+        args[i].algorithm = &algorithms[type];
         args[i].startRow = i * rowsPerThread;
         args[i].endRow = (i == threadCount - 1) ? srcImage.height : (i + 1) * rowsPerThread; // handler for the last thread's end row
         pthread_create(&threads[i], NULL, thread_convolute, &args[i]);

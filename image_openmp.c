@@ -75,6 +75,11 @@ enum KernelTypes GetKernelType(char* type){
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
+    // I added user input to decide how many threads before the timer starts.
+    int threadCount;
+    printf("Enter the number of threads to use: ");
+    scanf("%d", &threadCount);
+
     long t1,t2;
     t1=time(NULL);
 
@@ -85,9 +90,6 @@ int main(int argc,char** argv){
         printf("You have applied a gaussian filter to Gauss which has caused a tear in the time-space continum.\n");
     }
     enum KernelTypes type=GetKernelType(argv[2]);
-
-    // added thread count
-    int threadCount = omp_get_max_threads();
 
     Image srcImage,destImage,bwImage;   
     srcImage.data=stbi_load(fileName,&srcImage.width,&srcImage.height,&srcImage.bpp,0);
