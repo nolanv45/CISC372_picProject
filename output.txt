@@ -1,0 +1,15 @@
+Script started on Thu Apr  9 14:50:18 2026
+]0;nolanv@r1n06.darwin:~/CISC372_picProject[?1034h[nolanv@r1n06 CISC372_picProject]$ ./image_openmp pic1.jpg edge
+Enter the number of threads to use: 4
+Took 6 seconds
+]0;nolanv@r1n06.darwin:~/CISC372_picProject[nolanv@r1n06 CISC372_picProject]$ ./image_pthreads pic1.jpg edge
+Enter the number of threads to use: 4
+Thread 47898431424256 processing rows (0, 755)
+Thread 47898435626752 processing rows (1512, 2267)
+Thread 47898433525504 processing rows (756, 1511)
+Thread 47898437728000 processing rows (2268, 3023)
+Took 6 seconds
+]0;nolanv@r1n06.darwin:~/CISC372_picProject[nolanv@r1n06 CISC372_picProject]$ exit
+exit
+
+Script done on Thu Apr  9 14:51:58 2026
